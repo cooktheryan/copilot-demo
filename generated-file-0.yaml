@@ -1,0 +1,77 @@
+
+```yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsschool-mongopods
+  labels:
+    ops.school.pv: opsschool-mongopods
+    type: local
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt/data/mongodb"
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsschool-mongopods
+  labels:
+    ops.school.pv: opsschool-mongopods
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    100.daysofserverless-mongodb: opsschool
+  name: 100.daysofserverless-mongodb
+  namespace: 100.daysofserverless-mongodb
+spec:
+  ports:
+    - name: tcp-27017
+      port: 27017
+      protocol: TCP
+      targetPort: 27017
+  selector:
+    100.daysofserverless-mongodb: opsschool
+
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    100.daysofserverless-mongodb: opsschool
+  name: 100.daysofserverless-mongodb
+  namespace: 100.daysofserverless-mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      100.daysofserverless-mongodb: opsschool
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        100.daysofserverless-mongodb: opsschool
+    spec:
+      containers:
+        - image: mongo
+          imagePullPolicy: Always
+          name: mongo
+          ports:
+            - containerPort: 27017
+          resources: {}
+          volumeMounts:
+            - name: opsschool-mongopods
+              mount
