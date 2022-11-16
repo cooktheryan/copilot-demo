@@ -1,0 +1,28 @@
+#YAML Terminated below
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    run: "web"
+  name: "web"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: "web"
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        run: "web"
+    spec:
+      containers:
+      - image: "nginx:alpine"
+        name: "web"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
