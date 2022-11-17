@@ -1,0 +1,56 @@
+
+``` yaml
+---
+kind: persistentvolumeclaim 
+apiVersion: v1 
+metadata: 
+  name: mariadb 
+  namespace: default 
+spec: 
+  # storage: 10Gi # size of volume 
+  accessModes: 
+   - ReadWriteOnce 
+  resources: 
+    requests: 
+      storage: 10Gi 
+---
+kind: deployment 
+apiVersion: apps/v1 
+metadata: 
+  labels: 
+   app: mariadb 
+  name: mariadb 
+  namespace: default 
+spec: 
+  replicas: 1 
+  selector: 
+    matchLabels: 
+      app: mariadb 
+  template: 
+    metadata: 
+      labels: 
+        app: mariadb 
+    spec: 
+      volumes: 
+      - persistentVolumeClaim: 
+           claimName: mariadb 
+        name: mariadb 
+      containers: 
+      - name: mariadb 
+        image: mariadb:latest 
+        imagePullPolicy: Always 
+        ports: 
+         - 
+          containerPort: 3306
+          name: mariadb 
+          protocol: TCP 
+        volumeMounts: 
+        - mountPath: /var/lib/mysql 
+          name: mariadb 
+        env: 
+        - name: MYSQL_ROOT_PASSWORD 
+          # value: password 
+          valueFrom: 
+            secretKeyRef: 
+              name: mariadb-password 
+              key: password 
