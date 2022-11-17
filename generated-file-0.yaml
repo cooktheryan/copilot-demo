@@ -1,0 +1,38 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: sosa
+---  
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: mariadb
+    namespace: sosa
+spec:
+    replicas: 2
+    selector:
+        matchLabels:
+            app: mariadb
+    template:
+        metadata:
+            labels:
+                app: mariadb
+        spec:
+            containers:
+                - image: mariadb:10.4
+                  name: mariadb
+                  ports: 
+                      - containerPort: 3306
+                  env:
+                    - name: MYSQL_ROOT_PASSWORD
+                      value: password
+		    - name: MYSQL_DATABASE
+		      value: sosadb
+		    volumeMounts:
+		       - name: sosadb
+		         mountPath: /var/lib/mysql
+            volumes:
+                - name: sosadb
+                  persistentVolumeClaim:
+                     claimName: sosadb
